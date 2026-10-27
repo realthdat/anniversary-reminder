@@ -127,11 +127,3 @@ For reminders to fire on time, check **Settings**:
 - Battery optimization and autostart, which depend on the phone maker.
 
 A receiver reschedules reminders after boot, a time or timezone change, and an app update.
-
-## Git
-
-`.gitignore` leaves out the local SDK path, caches, build output, APKs, and signing files. Source, resources, the Gradle Wrapper, and `docs/images/` stay in the repo so a clone can build and this README still has its pictures.
-
-Repository: https://github.com/realthdat/anniversary-reminder
-
-Do not commit signing keys or passwords. There is no `LICENSE` file yet. Add one before treating the source as reusable under a specific license.
