@@ -52,7 +52,7 @@
     <string name="app_about">每年的纪念日和整数节点，只保存在这台手机上。</string>
     <string name="version_label">版本 %1$s</string>
     <string name="latest_update">最近更新：2026年10月27日</string>
-    <string name="copyright">© 2026 Dat Nguyen. All rights reserved.</string>
+    <string name="copyright">© 2026 Dat Nguyen. 保留所有权利。</string>
     <string name="use_time">使用这个时间</string>
     <string name="use_date">使用这个日期</string>
     <string name="cheer">干杯</string>
