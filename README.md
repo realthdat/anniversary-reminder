@@ -133,3 +133,7 @@ For reminders to fire on time, check **Settings**:
 - Battery optimization and autostart, which depend on the phone maker.
 
 A receiver reschedules reminders after boot, a time or timezone change, and an app update.
+
+## License
+
+Copyright (c) 2026 Dat Nguyen. Personal, non-commercial use only. Commercial use is not allowed. Contact: [thanhxdat@gmail.com](mailto:thanhxdat@gmail.com). The full terms are in [LICENSE](LICENSE).

@@ -51,7 +51,7 @@
     <string name="app_info">Thông tin ứng dụng</string>
     <string name="app_about">Kỷ niệm hằng năm và các mốc tròn, chỉ lưu trên máy này.</string>
     <string name="version_label">Phiên bản %1$s</string>
-    <string name="copyright">Bản quyền thuộc về: Dat Nguyen 2026</string>
+    <string name="copyright">Bản quyền thuộc về: Dat Nguyen 2026 · thanhxdat@gmail.com</string>
     <string name="use_time">Dùng giờ này</string>
     <string name="use_date">Dùng ngày này</string>
     <string name="cheer">Chúc mừng</string>
