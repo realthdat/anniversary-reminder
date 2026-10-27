@@ -1,0 +1,19 @@
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.cxx/
+.kotlin/
+.externalNativeBuild/
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+.DS_Store
+Thumbs.db
+
+# Older working screenshots; README uses the curated docs/images/ gallery.
+prototype/*-preview.png

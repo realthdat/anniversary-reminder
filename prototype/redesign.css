@@ -1,0 +1,77 @@
+:root { --bg:#faf7f0; --card:#fffdf9; --ink:#233c46; --muted:#6f7775; --line:#e8e2d6; --action:#8b622c; --button:#233f49; --track:#d8d7ce; --stage:#eae6dd; }
+html[data-theme="dark"] { --bg:#152730; --card:#203640; --ink:#f4eddf; --muted:#aebbbd; --line:#354a52; --action:#edca8d; --button:#385c68; --track:#42545a; --stage:#0d1a20; }
+/* Let native calendar/clock icons, picker popups and scrollbars follow the app,
+   independently of the operating system's theme. */
+:root { color-scheme:light; --input-border:#b9b6aa; }
+html[data-theme="dark"] { color-scheme:dark; --input-border:#617780; }
+input, select, textarea { color-scheme:inherit; accent-color:var(--action); caret-color:var(--ink); }
+input::placeholder, textarea::placeholder { color:var(--muted); opacity:1; }
+.field, .add-cycle input, .dialog input { border-color:var(--input-border); }
+.dialog input { min-width:0; background:var(--bg); color:var(--ink); }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator { opacity:1; cursor:pointer; padding:8px; border-radius:8px; }
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover { background-color:color-mix(in srgb,var(--action) 15%,transparent); }
+.field:focus-within { border-color:var(--action); }
+body { background:radial-gradient(ellipse at 20% 0%,#d9c8a744,transparent 55%),var(--stage); }
+.stage { padding:20px 16px 40px; }
+.phone { width:min(414px,100%); height:min(820px,calc(100dvh - 110px)); min-height:600px; border:1px solid var(--line); border-radius:36px; box-shadow:0 24px 70px #142c391c; }
+.status { padding:18px 26px 4px; font-size:12px; }
+.screen { padding:8px 24px 24px; min-height:0; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+.screen > * { flex-shrink:0; }
+.screen > .grow { flex-shrink:1; }
+html[lang="vi"] .welcome h1, html[lang="vi"] .section-heading h3, html[lang="vi"] .hero .name { font-family:"Segoe UI",sans-serif;letter-spacing:-.7px;font-weight:500; }
+html[lang="vi"] .welcome h1 { font-size:29px; }
+.bar { gap:2px; margin-bottom:12px; }
+.bar h2 { font-size:18px; letter-spacing:-.4px; }
+.icon { width:42px; height:44px; }
+.icon svg { width:20px; height:20px; stroke-width:1.6; }
+.welcome { margin:8px 0 24px; }
+.eyebrow { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:2.1px; color:var(--action); margin:0 0 9px; }
+.welcome h1 { font:normal 34px/1.15 Georgia,serif; letter-spacing:-1px; margin:0; }
+.welcome p:last-child { color:var(--muted); font-size:13px; margin:10px 0 0; line-height:1.5; }
+.hero { position:relative; overflow:hidden; background:#233f49; color:#fff8e9; border:0; border-radius:26px; padding:24px; box-shadow:0 10px 24px #1b33351a; }
+.hero::before,.hero::after { content:""; position:absolute; border:1px solid #e6c88a26; border-radius:50%; width:220px;height:220px; right:-100px;top:45px;pointer-events:none; }
+.hero::after { width:270px;height:270px;right:-125px;top:20px; }
+.hero-top { display:flex;align-items:center;justify-content:space-between;position:relative; }
+.hero .kicker { color:#e7cf9e; letter-spacing:1.6px;font-size:10px;text-transform:uppercase; }
+.hero .name { margin:16px 0 4px;font:normal 24px/1.25 Georgia,serif;max-width:95%;overflow-wrap:anywhere; }
+.milestone { margin:0;color:#bbcdce;font-size:12px; }
+.countdown { display:flex;align-items:baseline;gap:10px;margin:23px 0;position:relative; }
+.countdown strong { font:normal 66px/.95 Georgia,serif;letter-spacing:-3px;color:#f5dbab; }
+.countdown span { font-size:13px;color:#e0e9e5; }
+.hero-footer { display:flex;justify-content:space-between;gap:12px;border-top:1px solid #ffffff20;padding-top:16px;font-size:12px;color:#d8e2df;position:relative; }
+.hero .lead { color:#e7cf9e; }
+.section-heading { display:flex;justify-content:space-between;align-items:center;margin:26px 0 12px;gap:12px; }
+.section-heading h3 { font:normal 21px Georgia,serif;margin:0; }
+.section-heading span { color:var(--muted);font-size:11px; }
+.row-card { border-radius:18px;padding:15px;gap:12px;margin-bottom:9px; }
+.row-info { flex:1;min-width:0; }
+.row-name { font-size:14px;font-weight:600;overflow-wrap:anywhere; }
+.row-date { font-size:11px;line-height:1.5;margin-top:5px; }
+.row-count { text-align:right;flex:none;max-width:100px;font-size:15px;font-weight:600;color:var(--action); }
+.row-count small { display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:4px; }
+.btn { border-radius:16px;min-height:50px;height:auto;padding:14px 18px;font-size:14px;gap:8px; }
+.event-list { padding-bottom:96px; }
+.add-fab { position:absolute;left:calc(50% - 30px);bottom:20px;z-index:2;width:60px;height:60px;display:grid;place-items:center;border:1px solid #ffffff18;border-radius:50%;background:var(--button);color:white;box-shadow:0 6px 18px #071b3533;font:300 34px/1 "Segoe UI",sans-serif;cursor:pointer;transition:opacity .2s,transform .2s,visibility .2s; }
+.add-fab.is-hidden { opacity:0;transform:translateY(16px) scale(.75);visibility:hidden;pointer-events:none; }
+.card,.date-row { border-radius:18px; }
+.field { border-color:var(--input-border);border-radius:14px;margin-top:16px; }
+.group h3 { color:var(--action);font-size:12px;margin-top:24px; }
+button { transition:background .18s,transform .18s; }
+button:active { transform:scale(.985); }
+button:focus-visible,input:focus-visible { outline:3px solid #bb9254;outline-offset:3px; }
+.preview-tools { display:flex;justify-content:center;align-items:center;gap:18px;padding:20px 16px 0; }
+.preview-tools span { color:var(--muted);font-size:11px;letter-spacing:1.7px;text-transform:uppercase; }
+.preview-tools button { border:1px solid var(--line);border-radius:24px;background:var(--card);color:var(--ink);padding:10px 16px;cursor:pointer;font:600 12px 'Segoe UI',sans-serif; }
+.cheer { background:radial-gradient(ellipse at 50% 20%,#29434f,#101e29 70%); }
+.cheer div { position:absolute;top:39%;width:100%;max-height:23%;overflow:auto;margin:0;padding:0 26px; }
+.cheer p { font:italic 46px/1.1 Georgia,serif;text-transform:none;letter-spacing:-1px;color:#f4d69e;margin-bottom:12px; }
+.cheer b { font-size:18px;font-weight:500;overflow-wrap:anywhere; }
+.cheer span { color:#c8dfe6;font-size:14px;margin-top:7px; }
+.cheer .dismiss-hint { position:absolute;bottom:7%;font-size:11px;color:#a3b4bf;letter-spacing:.5px; }
+@media(max-width:460px) { .stage{padding:12px 8px 20px}.phone{border-radius:26px}.screen{padding:8px 20px 22px}.preview-tools{padding-top:12px}.welcome h1{font-size:31px} }
+.screen.event-list { padding-bottom:96px; }
+.event-list > .bar { position:sticky;top:-8px;z-index:3;background:var(--bg);margin-left:-4px;margin-right:-4px;padding:0 4px;box-shadow:0 8px 0 var(--bg); }
+.more { border:0;background:transparent;color:var(--action);font:600 13px "Segoe UI",sans-serif;min-height:44px;padding:10px 0;text-align:left;cursor:pointer; }
+@media(prefers-reduced-motion:reduce) { button{transition:none} }

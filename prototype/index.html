@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anniversaries</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --ink: #1e293b;
+    --muted: #475569;
+    --line: #e2e8f0;
+    --action: #2563eb;
+    --button: #2563eb;
+    --delete: #b91c1c;
+    --track: #cbd5e1;
+    --stage: #e8edf2;
+  }
+  html[data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --ink: #f8fafc;
+    --muted: #94a3b8;
+    --line: #334155;
+    --action: #93c5fd;
+    --button: #2563eb;
+    --delete: #fca5a5;
+    --track: #475569;
+    --stage: #020617;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--stage);
+    color: var(--ink);
+    font-family: "Segoe UI", sans-serif;
+  }
+  .stage { display: flex; justify-content: center; padding: 24px 16px; }
+  .group h3 { margin: 16px 0 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .group.first h3 { margin-top: 4px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 0 16px; }
+  .hair { height: 1px; background: var(--line); }
+  .langrow {
+    display: flex; align-items: center; width: 100%; min-height: 48px; padding: 0; border: 0; background: transparent;
+    color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; text-align: left; cursor: pointer;
+  }
+  .langrow.on { color: var(--action); }
+  .phone {
+    width: min(390px, 100%);
+    min-height: 720px;
+    background: var(--bg);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .status { display: flex; justify-content: space-between; padding: 14px 22px 0; font-size: 13px; font-weight: 600; }
+  .screen { padding: 8px 20px 20px; display: flex; flex-direction: column; flex: 1; overflow-y: auto; }
+  .bar { display: flex; align-items: center; min-height: 56px; gap: 4px; }
+  .bar h2 { margin: 0; font-size: 20px; font-weight: 600; flex: 1; }
+  .icon {
+    width: 48px; height: 48px; border: 0; background: transparent; color: var(--ink);
+    border-radius: 24px; display: grid; place-items: center; padding: 0; cursor: pointer;
+  }
+  .icon svg { width: 24px; height: 24px; }
+  .hero, .row-card, .date-row {
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+  }
+  .hero { border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06); cursor: pointer; }
+  .kicker { margin: 0; color: var(--muted); font-size: 13px; }
+  .name { margin: 4px 0 0; font-size: 20px; font-weight: 600; }
+  .count { margin: 12px 0 0; font-size: 56px; line-height: 1; font-weight: 600; color: var(--action); }
+  .unit { margin: 2px 0 0; color: var(--muted); font-size: 16px; }
+  .when { margin: 12px 0 0; font-size: 14px; }
+  .remain { margin: 2px 0 0; font-size: 14px; color: var(--action); }
+  .lead { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+  .cheer {
+    position: absolute; inset: 0; z-index: 4; border: 0; padding: 0; margin: 0; width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(16, 24, 43, 0.85); color: white; font: inherit; cursor: pointer;
+  }
+  .cheer canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .cheer div { position: relative; text-align: center; padding: 0 24px; opacity: 0; }
+  .cheer p { margin: 0; letter-spacing: 0.14em; text-transform: uppercase; font-size: 13px; font-weight: 600; color: #fbbf24; }
+  .cheer b { display: block; margin-top: 8px; font-size: 28px; }
+  .cheer span { display: block; margin-top: 4px; font-size: 18px; color: #93c5fd; }
+  .section { margin: 20px 0 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .row-card {
+    display: flex; align-items: center; gap: 16px; min-height: 56px;
+    border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; cursor: pointer;
+  }
+  .row-num { font-size: 20px; font-weight: 600; min-width: 72px; }
+  .row-num small { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+  .row-name { font-size: 16px; }
+  .row-date { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .grow { flex: 1; }
+  .empty { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .empty h3 { margin: 0 0 8px; font-size: 20px; }
+  .empty p { margin: 0; color: var(--muted); line-height: 1.45; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; width: 100%; height: 48px;
+    margin-top: 16px; border: 0; border-radius: 12px; background: var(--button); color: white;
+    font: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn.ghost { background: transparent; color: var(--delete); border: 1px solid var(--delete); margin-top: 8px; }
+  .field { margin-top: 8px; border: 1px solid #94a3b8; border-radius: 8px; min-height: 56px; padding: 8px 16px; position: relative; display: flex; align-items: center; }
+  .field span { position: absolute; top: -8px; left: 12px; background: var(--bg); padding: 0 4px; font-size: 12px; color: var(--muted); }
+  .field input { width: 100%; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; outline: none; }
+  .date-row { display: flex; align-items: center; min-height: 56px; margin-top: 12px; padding: 0 16px; border-radius: 12px; cursor: pointer; }
+  .date-row small { display: block; color: var(--muted); font-size: 13px; }
+  .setrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+  .setrow > div { flex: 1; }
+  .setrow b { font-weight: 600; }
+  .setrow small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; margin-top: 2px; }
+  .setrow .value { color: var(--action); font-weight: 600; }
+  .switch { width: 52px; height: 32px; border-radius: 16px; background: var(--track); border: 0; padding: 0; position: relative; flex: none; cursor: pointer; }
+  .switch::after { content: ""; position: absolute; width: 24px; height: 24px; border-radius: 12px; background: white; top: 4px; left: 4px; }
+  .switch.on { background: var(--button); }
+  .switch.on::after { left: 24px; }
+  .about { padding: 20px 8px 16px; text-align: center; }
+  .about .mark { width: 64px; height: 64px; margin: 0 auto; border-radius: 16px; background: #F8FAFC; object-fit: contain; display: block; }
+  .about b { display: block; margin-top: 12px; font-size: 20px; }
+  .about .ver { margin-top: 2px; color: var(--muted); font-size: 13px; }
+  .about p { margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
+  .about .hair { margin-top: 16px; }
+  .about .copy { margin-top: 12px; font-size: 12px; }
+  .cycle { display: flex; align-items: center; gap: 8px; min-height: 56px; user-select: none; }
+  .cycle > div { flex: 1; }
+  .cycle small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .cycle.past b { color: var(--muted); }
+  .passed { flex: none; padding: 3px 8px; border-radius: 99px; background: var(--line); color: var(--muted); font-size: 12px; font-weight: 600; }
+  .add-cycle { display: flex; gap: 8px; align-items: center; padding: 8px 0 12px; }
+  .add-cycle input { flex: 1; height: 48px; border: 1px solid #94a3b8; border-radius: 8px; background: transparent; color: var(--ink); font: inherit; font-size: 16px; padding: 0 12px; }
+  .add-btn { height: 48px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--button); color: white; font: inherit; font-weight: 600; cursor: pointer; }
+  .shade { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.45); display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .dialog { width: 100%; background: var(--card); color: var(--ink); border-radius: 28px; padding: 24px; }
+  .dialog h3 { margin: 0 0 8px; font-size: 22px; font-weight: 600; }
+  .dialog p { margin: 0; }
+  .dialog input { width: 100%; height: 48px; margin-top: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; padding: 0 12px; }
+  .actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: 8px; }
+  .actions button { min-height: 48px; padding: 0 12px; border: 0; background: transparent; font: inherit; font-weight: 600; color: var(--action); cursor: pointer; }
+  .actions .danger { color: var(--delete); }
+</style>
+<link rel="stylesheet" href="redesign.css">
+</head>
+<body>
+<div class="preview-tools"><span>Anniversaries · Preview</span><button id="demo-fireworks" type="button">✦ Xem lời chúc</button></div><div class="stage"><div class="phone" id="phone"></div></div>
+<script src="fireworks.js"></script>
+<script>
+const DAY_MARKS = [100, 200, 300, 500, 1000];
+const WEEK_MARKS = [100, 200, 500, 1000];
+const MONTH_MARKS = [100, 200, 300, 500, 1000];
+const COPY = {
+  en: {
+    display_section: "Display", reminders_section: "Reminders",
+    language: "Language", english: "English", vietnamese: "Tiếng Việt", chinese: "中文", korean: "한국어",
+    time_label: "Notification time", alarms_detail: "So the reminder fires on time",
+    early: "Early reminder", early_off: "Off", early_1: "1 day before", early_3: "3 days before", early_7: "1 week before",
+    early_when: "Reminds %s",
+    appearance: "Appearance", light: "Light", dark: "Dark",
+    app_name: "Anniversaries", phone_setup: "Settings", back: "Back",
+    no_dates: "No dates yet",
+    empty_body: "Add a date. This phone notifies you each year, and on round marks such as 100 days, 1,000 days, and 100 months.",
+    later: "Later", since: "How long has it been since...", add_date: "Add a date", new_date: "New date", edit_date: "Edit date",
+    cycles: "Day marks", passed: "Passed",
+    add_mark: "Add", remove_mark: "Delete this mark?",
+    name: "Name", date: "Date", save: "Save", delete: "Delete", delete_title: "Delete this date?",     cancel: "Cancel",
+    notifications: "Notifications", notifications_on: "Banner and lock screen", notifications_off: "Turn on banner and lock screen",
+    alarms: "Alarms and reminders", battery: "Battery", battery_on: "Unrestricted", battery_off: "Still restricted",
+    autostart: "Autostart", autostart_detail: "Turn Anniversaries on",
+    notify_time: "Notification time %s",
+    app_info: "App info",
+    app_about: "Yearly anniversaries and round marks, kept only on this phone.",
+    version: "Version 1.0",
+    copyright: "Copyright: Dat Nguyen 2026",
+    use_time: "Use this time", use_date: "Use this date", cheer: "Cheers", next: "Next", today: "Today", tomorrow: "Tomorrow",
+    in_days: "in %d days",
+    home_eyebrow: "FOR THE DAYS THAT MATTER", home_title: "Every moment matters.", home_subtitle: "An ordinary day. An extraordinary memory.",
+    nearest_milestone: "YOUR NEXT MILESTONE", celebrating_mark: "Celebrating %s", days_to_go: "days to go",
+    upcoming_heading: "Coming up", upcoming_count: "%d memories", show_more: "Show more", show_less: "Show less",
+    together_heading: "Time together", together_note: "Every day counts", since_date: "Since %s", days_together: "days together",
+    events_section: "Events", manage_events: "Manage events", tap_continue: "Tap to continue", sample_event: "The day we met",
+    units: { year: ["year", "years"], month: ["month", "months"], week: ["week", "weeks"], day: ["day", "days"] }
+  },
+  vi: {
+    display_section: "Hiển thị", reminders_section: "Nhắc nhở",
+    language: "Ngôn ngữ", english: "English", vietnamese: "Tiếng Việt", chinese: "中文", korean: "한국어",
+    time_label: "Giờ nhắc", alarms_detail: "Để nhắc đúng giờ",
+    early: "Nhắc sớm", early_off: "Tắt", early_1: "Trước 1 ngày", early_3: "Trước 3 ngày", early_7: "Trước 1 tuần",
+    early_when: "Nhắc sớm %s",
+    appearance: "Giao diện", light: "Sáng", dark: "Tối",
+    app_name: "Nhắc nhở kỷ niệm", phone_setup: "Cài đặt", back: "Quay lại",
+    no_dates: "Chưa có ngày nào",
+    empty_body: "Thêm một ngày. Máy sẽ nhắc mỗi năm, và vào các mốc tròn như 100 ngày, 1.000 ngày, 100 tháng.",
+    later: "Sau này", since: "Đã bao lâu kể từ...", add_date: "Thêm ngày", new_date: "Ngày mới", edit_date: "Sửa ngày",
+    cycles: "Chu kỳ ngày", passed: "Đã qua",
+    add_mark: "Thêm", remove_mark: "Xóa mốc này?",
+    name: "Tên", date: "Ngày", save: "Lưu", delete: "Xóa", delete_title: "Xóa ngày này?",     cancel: "Hủy",
+    notifications: "Thông báo", notifications_on: "Biểu ngữ và màn hình khóa", notifications_off: "Bật biểu ngữ và màn hình khóa",
+    alarms: "Báo thức và nhắc nhở", battery: "Pin", battery_on: "Không hạn chế", battery_off: "Vẫn bị hạn chế",
+    autostart: "Tự khởi động", autostart_detail: "Bật Nhắc nhở kỷ niệm",
+    notify_time: "Giờ nhắc %s",
+    app_info: "Thông tin ứng dụng",
+    app_about: "Kỷ niệm hằng năm và các mốc tròn, chỉ lưu trên máy này.",
+    version: "Phiên bản 1.0",
+    copyright: "Bản quyền thuộc về: Dat Nguyen 2026",
+    use_time: "Dùng giờ này", use_date: "Dùng ngày này", cheer: "Chúc mừng", next: "Sắp tới", today: "Hôm nay", tomorrow: "Ngày mai",
+    in_days: "còn %d ngày",
+    home_eyebrow: "GỬI NHỮNG NGÀY ĐÁNG NHỚ", home_title: "Giữ từng khoảnh khắc.", home_subtitle: "Một ngày bình thường. Một kỷ niệm đặc biệt.",
+    nearest_milestone: "KỶ NIỆM GẦN NHẤT", celebrating_mark: "Chạm mốc %s", days_to_go: "ngày nữa",
+    upcoming_heading: "Sắp tới", upcoming_count: "%d kỷ niệm", show_more: "Xem thêm", show_less: "Thu gọn",
+    together_heading: "Đã cùng nhau", together_note: "Từng ngày đều đáng nhớ", since_date: "Từ %s", days_together: "ngày đã qua",
+    events_section: "Sự kiện", manage_events: "Quản lý sự kiện", tap_continue: "Chạm để tiếp tục", sample_event: "Ngày mình gặp nhau",
+    units: { year: ["năm", "năm"], month: ["tháng", "tháng"], week: ["tuần", "tuần"], day: ["ngày", "ngày"] }
+  },
+  zh: {
+    display_section: "显示", reminders_section: "提醒",
+    language: "语言", english: "English", vietnamese: "Tiếng Việt", chinese: "中文", korean: "한국어",
+    time_label: "提醒时间", alarms_detail: "以便准时提醒",
+    early: "提前提醒", early_off: "关闭", early_1: "提前1天", early_3: "提前3天", early_7: "提前1周",
+    early_when: "%s 提前提醒",
+    appearance: "外观", light: "浅色", dark: "深色",
+    app_name: "纪念日", phone_setup: "设置", back: "返回",
+    no_dates: "还没有日期",
+    empty_body: "添加一个日期。手机会在每年，以及100天、1,000天、100个月这样的整数节点提醒你。",
+    later: "以后", since: "从那天起已经多久…", add_date: "添加日期", new_date: "新日期", edit_date: "编辑日期",
+    cycles: "天数节点", passed: "已过",
+    add_mark: "添加", remove_mark: "删除这个节点？",
+    name: "名称", date: "日期", save: "保存", delete: "删除", delete_title: "删除这个日期？", cancel: "取消",
+    notifications: "通知", notifications_on: "横幅和锁屏", notifications_off: "开启横幅和锁屏",
+    alarms: "闹钟和提醒", battery: "电池", battery_on: "无限制", battery_off: "仍受限制",
+    autostart: "自启动", autostart_detail: "开启纪念日",
+    notify_time: "提醒时间 %s",
+    app_info: "应用信息",
+    app_about: "每年的纪念日和整数节点，只保存在这台手机上。",
+    version: "版本 1.0",
+    copyright: "版权所有：Dat Nguyen 2026",
+    use_time: "使用这个时间", use_date: "使用这个日期", cheer: "干杯", next: "即将到来", today: "今天", tomorrow: "明天",
+    in_days: "还有 %d 天",
+    home_eyebrow: "献给重要的日子", home_title: "记住每一个瞬间。", home_subtitle: "平常的一天，特别的回忆。",
+    nearest_milestone: "最近的纪念日", celebrating_mark: "迎来 %s", days_to_go: "天后",
+    upcoming_heading: "即将到来", upcoming_count: "%d个纪念日", show_more: "查看更多", show_less: "收起",
+    together_heading: "在一起的时光", together_note: "每一天都值得记住", since_date: "从 %s", days_together: "天已过",
+    events_section: "事件", manage_events: "管理事件", tap_continue: "轻触继续", sample_event: "我们相遇的那天",
+    units: { year: ["年", "年"], month: ["个月", "个月"], week: ["周", "周"], day: ["天", "天"] }
+  },
+  ko: {
+    display_section: "표시", reminders_section: "알림",
+    language: "언어", english: "English", vietnamese: "Tiếng Việt", chinese: "中文", korean: "한국어",
+    time_label: "알림 시간", alarms_detail: "정시에 알리려면",
+    early: "미리 알림", early_off: "끄기", early_1: "1일 전", early_3: "3일 전", early_7: "1주 전",
+    early_when: "%s에 미리 알림",
+    appearance: "화면", light: "밝게", dark: "어둡게",
+    app_name: "기념일", phone_setup: "설정", back: "뒤로",
+    no_dates: "아직 날짜가 없습니다",
+    empty_body: "날짜를 추가하세요. 매년, 그리고 100일, 1,000일, 100개월 같은 날에 알려 드립니다.",
+    later: "나중에", since: "그날부터 얼마나 지났나요…", add_date: "날짜 추가", new_date: "새 날짜", edit_date: "날짜 수정",
+    cycles: "일수 표시", passed: "지남",
+    add_mark: "추가", remove_mark: "이 표시를 삭제할까요?",
+    name: "이름", date: "날짜", save: "저장", delete: "삭제", delete_title: "이 날짜를 삭제할까요?", cancel: "취소",
+    notifications: "알림", notifications_on: "배너와 잠금 화면", notifications_off: "배너와 잠금 화면 켜기",
+    alarms: "알람 및 리마인더", battery: "배터리", battery_on: "제한 없음", battery_off: "아직 제한됨",
+    autostart: "자동 시작", autostart_detail: "기념일 켜기",
+    notify_time: "알림 시간 %s",
+    app_info: "앱 정보",
+    app_about: "매년의 기념일과 특별한 날. 이 휴대전화에만 저장됩니다.",
+    version: "버전 1.0",
+    copyright: "저작권: Dat Nguyen 2026",
+    use_time: "이 시간 사용", use_date: "이 날짜 사용", cheer: "축하해요", next: "다가오는 날", today: "오늘", tomorrow: "내일",
+    in_days: "%d일 후",
+    home_eyebrow: "소중한 날을 위해", home_title: "모든 순간을 간직하세요.", home_subtitle: "평범한 하루, 특별한 기억.",
+    nearest_milestone: "가장 가까운 기념일", celebrating_mark: "%s", days_to_go: "일 남음",
+    upcoming_heading: "다가오는 날", upcoming_count: "기념일 %d개", show_more: "더 보기", show_less: "접기",
+    together_heading: "함께한 시간", together_note: "하루하루가 소중합니다", since_date: "%s부터", days_together: "일 함께",
+    events_section: "일정", manage_events: "일정 관리", tap_continue: "탭하여 계속", sample_event: "우리가 만난 날",
+    units: { year: ["년", "년"], month: ["개월", "개월"], week: ["주", "주"], day: ["일", "일"] }
+  }
+};
+function icon(body) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+}
+const GEAR = icon('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>');
+const MOON = icon('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>');
+const SUN = icon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>');
+const BACK = icon('<path d="M19 12H5M12 19l-7-7 7-7"/>');
+
+const today = fromDate(new Date());
+let lang = "vi";
+let theme = "light";
+let screen = "list";
+let editReturn = "list", allUpcoming = false, allTogether = false;
+function defaultCycles() { return DAY_MARKS.map(days => ({ days, on: true })); }
+let events = [
+  { id: 1, name: "Ngày mình gặp nhau", start: "2026-07-19", cycles: defaultCycles() },
+  { id: 2, name: "Ngày cưới của chúng mình", start: "2024-02-14", cycles: defaultCycles() }
+];
+let hour = 9, minute = 0, early = 0;
+let cheered = new Set();
+let cheerGen = 0;
+let demoCheer = false;
+let flags = { notifications: false, alarms: false, battery: false, autostart: false };
+let draft = null;
+let dialog = null;
+
+function t() { return COPY[lang]; }
+function pad(n) { return String(n).padStart(2, "0"); }
+function fromDate(d) { return { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() }; }
+function parse(iso) { const [y, m, d] = iso.split("-").map(Number); return { y, m, d }; }
+function iso(d) { return d.y + "-" + pad(d.m) + "-" + pad(d.d); }
+function cmp(a, b) { return iso(a) < iso(b) ? -1 : iso(a) > iso(b) ? 1 : 0; }
+function leap(y) { return y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0); }
+function dim(y, m) { return [31, leap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; }
+function plusDays(d, n) { return fromUtc(Date.UTC(d.y, d.m - 1, d.d) + n * 86400000); }
+function fromUtc(ms) { const x = new Date(ms); return { y: x.getUTCFullYear(), m: x.getUTCMonth() + 1, d: x.getUTCDate() }; }
+function plusMonths(d, n) {
+  const m0 = d.m - 1 + n;
+  const y = d.y + Math.floor(m0 / 12);
+  const m = ((m0 % 12) + 12) % 12 + 1;
+  return { y, m, d: Math.min(d.d, dim(y, m)) };
+}
+function plusYears(d, n) { const y = d.y + n; return { y, m: d.m, d: Math.min(d.d, dim(y, d.m)) }; }
+function daysBetween(a, b) { return Math.round((Date.UTC(b.y, b.m - 1, b.d) - Date.UTC(a.y, a.m - 1, a.d)) / 86400000); }
+function same(a, b) { return a.y === b.y && a.m === b.m && a.d === b.d; }
+
+function labelsOn(start, date, enabled) {
+  if (cmp(date, start) <= 0) return [];
+  const labels = [];
+  const years = date.y - start.y;
+  if (years >= 1 && same(plusYears(start, years), date)) labels.push({ count: years, unit: "year" });
+  for (const n of MONTH_MARKS) if (n % 12 !== 0 && same(plusMonths(start, n), date)) labels.push({ count: n, unit: "month" });
+  for (const n of WEEK_MARKS) if (same(plusDays(start, n * 7), date)) labels.push({ count: n, unit: "week" });
+  const days = daysBetween(start, date);
+  if ((enabled || DAY_MARKS).includes(days)) labels.push({ count: days, unit: "day" });
+  return labels;
+}
+function stillAhead(date) {
+  if (cmp(date, today) > 0) return true;
+  if (cmp(date, today) < 0) return false;
+  const now = new Date();
+  return now.getHours() < hour || (now.getHours() === hour && now.getMinutes() < minute);
+}
+function nextHit(start, cycles) {
+  const enabled = (cycles || defaultCycles()).filter(cycle => cycle.on).map(cycle => cycle.days);
+  const dates = [];
+  const span = Math.max(today.y - start.y, 1);
+  let anniversary = plusYears(start, span);
+  if (!stillAhead(anniversary)) anniversary = plusYears(start, span + 1);
+  if (cmp(anniversary, start) > 0) dates.push(anniversary);
+  for (const n of enabled) dates.push(plusDays(start, n));
+  for (const n of WEEK_MARKS) dates.push(plusDays(start, n * 7));
+  for (const n of MONTH_MARKS) if (n % 12 !== 0) dates.push(plusMonths(start, n));
+  const seen = new Set();
+  const ordered = dates.filter(d => (seen.has(iso(d)) ? false : seen.add(iso(d)))).sort(cmp);
+  for (const date of ordered) {
+    if (!stillAhead(date)) continue;
+    const labels = labelsOn(start, date, enabled);
+    if (labels.length) return { date, labels };
+  }
+  return null;
+}
+function dueToday() {
+  return events.flatMap(event => {
+    const enabled = (event.cycles || defaultCycles()).filter(cycle => cycle.on).map(cycle => cycle.days);
+    const labels = labelsOn(parse(event.start), today, enabled);
+    const key = event.id + "|" + iso(today);
+    return labels.length && !cheered.has(key) ? [{ event, labels, key }] : [];
+  });
+}
+function cheerLayer() {
+  if (screen !== "list") return "";
+  const hits = demoCheer ? [{ event: { name: t().sample_event }, labels: [{ count: 100, unit: "day" }] }] : dueToday();
+  if (!hits.length) return "";
+  const lines = hits.map(hit => `<b>${esc(hit.event.name)}</b><span>${esc(phrase({ labels: hit.labels }))}</span>`).join("");
+  return `<button class="cheer" data-act="cheer" type="button"><canvas></canvas><div><p>Cheers!</p>${lines}</div><small class="dismiss-hint">${esc(t().tap_continue)}</small></button>`;
+}
+function leadDate(hit) {
+  if (![1, 3, 7].includes(early)) return null;
+  const soon = plusDays(hit, -early);
+  return stillAhead(soon) && cmp(soon, hit) < 0 ? soon : null;
+}
+function remindLine(hit) {
+  const soon = leadDate(hit);
+  return soon ? `<p class="lead">${esc(t().early_when.replace("%s", formatDate(soon)))}</p>` : "";
+}
+function ranked() {
+  return events.map(event => ({ event, hit: nextHit(parse(event.start), event.cycles) })).filter(row => row.hit).sort((a, b) => cmp(a.hit.date, b.hit.date));
+}
+function digits(n) { return new Intl.NumberFormat(lang).format(n); }
+function word(mark) { const pair = t().units[mark.unit]; return mark.count === 1 ? pair[0] : pair[1]; }
+function phrase(hit) { return hit.labels.map(mark => digits(mark.count) + " " + word(mark)).join(" · "); }
+function formatDate(d) {
+  return new Intl.DateTimeFormat(lang, { day: "numeric", month: "short", year: "numeric" }).format(new Date(d.y, d.m - 1, d.d));
+}
+function remain(date) {
+  const days = daysBetween(today, date);
+  if (days <= 0) return t().today;
+  if (days === 1) return t().tomorrow;
+  return t().in_days.replace("%d", days);
+}
+function clock() { return pad(hour) + ":" + pad(minute); }
+function esc(s) { return String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch])); }
+
+function bar(title, back, gear) {
+  const tools = gear
+    ? `<button class="icon" data-act="theme" aria-label="${esc(theme === "dark" ? t().light : t().dark)}">${theme === "dark" ? SUN : MOON}</button><button class="icon" data-act="setup" aria-label="${esc(t().phone_setup)}">${GEAR}</button>`
+    : "";
+  return `<div class="bar">${back ? `<button class="icon" data-act="back" aria-label="${esc(t().back)}">${BACK}</button>` : ""}<h2>${esc(title)}</h2>${tools}</div>`;
+}
+function listScreen() {
+  const rows = ranked();
+  const heading = (title, detail) => '<div class="section-heading"><h3>' + title + '</h3><span>' + detail + '</span></div>';
+  let body = '<div class="welcome"><p class="eyebrow">' + esc(t().home_eyebrow) + '</p><h1>' + esc(t().home_title) + '</h1><p>' + esc(t().home_subtitle) + '</p></div>';
+  if (!rows.length) body += '<div class="empty"><h3>' + esc(t().no_dates) + '</h3><p>' + esc(t().empty_body) + '</p></div>';
+  else {
+    const hero = rows[0], days = Math.max(0, daysBetween(today, hero.hit.date));
+    body += '<button class="hero" data-act="edit" data-id="' + hero.event.id + '"><div class="hero-top"><p class="kicker">' + esc(t().nearest_milestone) + '</p></div><p class="name">' + esc(hero.event.name) + '</p><p class="milestone">' + esc(t().celebrating_mark.replace("%s", phrase(hero.hit))) + '</p><div class="countdown"><strong>' + (days ? esc(digits(days)) : esc(t().today)) + '</strong>' + (days ? '<span>' + esc(t().days_to_go) + '</span>' : '') + '</div><div class="hero-footer"><span>' + esc(formatDate(hero.hit.date)) + '</span></div>' + remindLine(hero.hit.date) + '</button>';
+    if (rows.length > 1) {
+      body += heading(esc(t().upcoming_heading), esc(t().upcoming_count.replace("%d", rows.length - 1)));
+      for (const row of rows.slice(1, allUpcoming ? undefined : 4)) body += '<button class="row-card" data-act="edit" data-id="' + row.event.id + '"><div class="row-info"><div class="row-name">' + esc(row.event.name) + '</div><div class="row-date">' + esc(phrase(row.hit)) + ' · ' + esc(formatDate(row.hit.date)) + '</div></div><div class="row-count">' + Math.max(0,daysBetween(today,row.hit.date)) + '<small>' + esc(t().days_to_go) + '</small></div></button>';
+    }
+    if (rows.length > 4) body += '<button class="more" data-act="more-upcoming">' + esc(allUpcoming ? t().show_less : t().show_more) + '</button>';
+    const since = events.map(event => ({ event, days: daysBetween(parse(event.start),today) })).filter(row => row.days >= 0);
+    if (since.length) {
+      body += heading(esc(t().together_heading), esc(t().together_note));
+      for (const row of (allTogether ? since : since.slice(0, 3))) body += '<button class="row-card" data-act="edit" data-id="' + row.event.id + '"><div class="row-info"><div class="row-name">' + esc(row.event.name) + '</div><div class="row-date">' + esc(t().since_date.replace("%s", formatDate(parse(row.event.start)))) + '</div></div><div class="row-count">' + esc(digits(row.days)) + '<small>' + esc(t().days_together) + '</small></div></button>';
+    }
+  }
+  if (events.filter(event => daysBetween(parse(event.start), today) >= 0).length > 3) body += '<button class="more" data-act="more-together">' + esc(allTogether ? t().show_less : t().show_more) + '</button>';
+  return bar(t().app_name, false, true) + body;
+}
+function cycleCard() {
+  const start = parse(draft.start);
+  const rows = [...draft.cycles].sort((a, b) => a.days - b.days);
+  let body = "";
+  rows.forEach((cycle, index) => {
+    const markDate = plusDays(start, cycle.days);
+    const past = !stillAhead(markDate);
+    if (index) body += `<div class="hair"></div>`;
+    const label = word({ count: cycle.days, unit: "day" });
+    body += `<div class="cycle${past ? " past" : ""}" data-id="${cycle.days}"><div class="hold" role="button" aria-label="${esc(digits(cycle.days))} ${esc(label)}${past ? ", " + esc(t().passed) : ""}"><b>${esc(digits(cycle.days))} ${esc(label)}</b><small>${esc(formatDate(markDate))}</small></div>` +
+      (past ? `<span class="passed">${esc(t().passed)}</span>` : "") +
+      `<button class="switch${cycle.on ? " on" : ""}" data-act="cycle" data-id="${cycle.days}" role="switch" aria-checked="${cycle.on}"></button></div>`;
+  });
+  body += `<div class="add-cycle"><input id="cycle-days" inputmode="numeric" placeholder="1200" value="${esc(draft.extra || "")}"><button class="add-btn" data-act="add-cycle" type="button">${esc(t().add_mark)}</button></div>`;
+  return `<div class="group"><h3>${esc(t().cycles)}</h3><div class="card">${body}</div></div>`;
+}
+function editScreen() {
+  const existing = draft.id != null;
+  return bar(existing ? t().edit_date : t().new_date, true, false) +
+    `<label class="field"><span>${esc(t().name)}</span><input id="name" value="${esc(draft.name)}" autocomplete="off"></label>` +
+    `<button class="date-row" data-act="pick-date"><div><small>${esc(t().date)}</small>${esc(formatDate(parse(draft.start)))}</div></button>` +
+    cycleCard() +
+    `<div class="grow"></div>` +
+    `<button class="btn" id="save" data-act="save" ${draft.name.trim() ? "" : "disabled"}>${esc(t().save)}</button>` +
+    (existing ? `<button class="btn ghost" data-act="ask-delete">${esc(t().delete)}</button>` : "");
+}
+function eventsScreen() {
+  return bar(t().manage_events, true, false) +
+    (events.length ? events.map(event => '<button class="row-card" data-act="edit" data-id="' + event.id + '"><div class="row-info"><div class="row-name">' + esc(event.name) + '</div><div class="row-date">' + esc(formatDate(parse(event.start))) + '</div></div></button>').join('') : '<p>' + esc(t().no_dates) + '</p>') +
+    '<button class="btn" data-act="add">' + esc(t().add_date) + '</button>';
+}
+function setupRow(key, title, detail) {
+  return `<div class="setrow"><div><b>${esc(title)}</b>${detail ? `<small>${esc(detail)}</small>` : ""}</div><button class="switch${flags[key] ? " on" : ""}" data-act="flag" data-id="${key}" role="switch" aria-checked="${flags[key]}" aria-label="${esc(title)}"></button></div>`;
+}
+function languages() { return [["en", t().english], ["vi", t().vietnamese], ["zh", t().chinese], ["ko", t().korean]]; }
+function earlyChoices() { return [[0, t().early_off], [1, t().early_1], [3, t().early_3], [7, t().early_7]]; }
+function earlyName() { return (earlyChoices().find(([days]) => days === early) || earlyChoices()[0])[1]; }
+function setupScreen() {
+  const languageName = (languages().find(([id]) => id === lang) || languages()[0])[1];
+  return bar(t().phone_setup, true, false) +
+    `<div class="group first"><h3>${esc(t().events_section)}</h3><div class="card"><button class="setrow" data-act="events"><div><b>${esc(t().manage_events)}</b></div><span class="value">›</span></button></div></div>` +
+    `<div class="group first"><h3>${esc(t().display_section)}</h3><div class="card">` +
+    `<button class="setrow" data-act="pick-lang" type="button"><div><b>${esc(t().language)}</b></div><span class="value">${esc(languageName)}</span></button></div></div>` +
+    `<div class="group"><h3>${esc(t().reminders_section)}</h3><div class="card">` +
+    setupRow("notifications", t().notifications, flags.notifications ? t().notifications_on : t().notifications_off) +
+    `<div class="hair"></div>` + setupRow("alarms", t().alarms, t().alarms_detail) +
+    `<div class="hair"></div>` + setupRow("battery", t().battery, flags.battery ? t().battery_on : t().battery_off) +
+    `<div class="hair"></div>` + setupRow("autostart", t().autostart, t().autostart_detail) +
+    `<div class="hair"></div><button class="setrow" data-act="pick-time" type="button"><div><b>${esc(t().time_label)}</b></div><span class="value">${clock()}</span></button>` +
+    `<div class="hair"></div><button class="setrow" data-act="pick-early" type="button"><div><b>${esc(t().early)}</b></div><span class="value">${esc(earlyName())}</span></button>` +
+    `</div></div>` +
+    `<div class="group"><h3>${esc(t().app_info)}</h3><div class="card"><div class="about"><img class="mark" src="mark.png" alt=""><b>${esc(t().app_name)}</b><div class="ver">${esc(t().version)}</div><p>${esc(t().app_about)}</p><div class="hair"></div><p class="copy">${esc(t().copyright)}</p></div></div></div>`;
+}
+function overlay() {
+  if (dialog === "delete-list") {
+    const eventRow = events.find(item => String(item.id) === String(dropEvent));
+    return `<div class="shade"><div class="dialog" role="dialog"><h3>${esc(t().delete_title)}</h3><p>${esc(eventRow ? eventRow.name : "")}</p><div class="actions"><button data-act="close" type="button">${esc(t().cancel)}</button><button data-act="confirm-delete-list" type="button">${esc(t().delete)}</button></div></div></div>`;
+  }
+  if (dialog === "drop") {
+    const cycle = draft.cycles.find(item => item.days === draft.dropDays);
+    const label = cycle ? `${digits(cycle.days)} ${word({ count: cycle.days, unit: "day" })}` : "";
+    return `<div class="shade"><div class="dialog" role="dialog"><h3>${esc(t().remove_mark)}</h3><p>${esc(label)}</p><div class="actions"><button data-act="close" type="button">${esc(t().cancel)}</button><button class="danger" data-act="confirm-drop" type="button">${esc(t().delete)}</button></div></div></div>`;
+  }
+  if (dialog === "delete") {
+    return `<div class="shade"><div class="dialog" role="dialog"><h3>${esc(t().delete_title)}</h3><p>${esc(draft.name)}</p><div class="actions"><button data-act="close" type="button">${esc(t().cancel)}</button><button class="danger" data-act="confirm-delete" type="button">${esc(t().delete)}</button></div></div></div>`;
+  }
+  if (dialog === "date") {
+    return `<div class="shade"><div class="dialog" role="dialog"><h3>${esc(t().date)}</h3><input id="picked-date" type="date" value="${esc(draft.start)}"><div class="actions"><button data-act="close" type="button">${esc(t().cancel)}</button><button data-act="use-date" type="button">${esc(t().use_date)}</button></div></div></div>`;
+  }
+  if (dialog === "lang") {
+    const rows = languages().map(([id, label]) => `<button class="langrow${id === lang ? " on" : ""}" data-act="lang" data-id="${id}" type="button">${esc(label)}</button>`).join("");
+    return `<div class="shade"><div class="dialog" role="dialog"><h3>${esc(t().language)}</h3>${rows}<div class="actions"><button data-act="close" type="button">${esc(t().cancel)}</button></div></div></div>`;
+  }
+  if (dialog === "early") {
+    const rows = earlyChoices().map(([days, label]) => `<button class="langrow${days === early ? " on" : ""}" data-act="early" data-id="${days}" type="button">${esc(label)}</button>`).join("");
+    return `<div class="shade"><div class="dialog" role="dialog"><h3>${esc(t().early)}</h3>${rows}<div class="actions"><button data-act="close" type="button">${esc(t().cancel)}</button></div></div></div>`;
+  }
+  if (dialog === "time") {
+    return `<div class="shade"><div class="dialog" role="dialog"><h3>${esc(t().time_label)}</h3><input id="picked-time" type="time" value="${clock()}"><div class="actions"><button data-act="close" type="button">${esc(t().cancel)}</button><button data-act="use-time" type="button">${esc(t().use_time)}</button></div></div></div>`;
+  }
+  return "";
+}
+function render() {
+  document.documentElement.lang = lang;
+  document.documentElement.dataset.theme = theme;
+  document.title = t().app_name;
+  const now = new Date();
+  const body = screen === "edit" ? editScreen() : screen === "setup" ? setupScreen() : screen === "events" ? eventsScreen() : listScreen();
+  document.getElementById("phone").innerHTML = `<div class="status"><span>${pad(now.getHours())}:${pad(now.getMinutes())}</span><span>5G</span></div><div class="screen${screen === "list" ? " event-list" : ""}">${body}</div>${screen === "list" ? `<button class="add-fab" data-act="add" aria-label="${esc(t().add_date)}" title="${esc(t().add_date)}"><span aria-hidden="true">+</span></button>` : ""}${cheerLayer()}${overlay()}`;
+  const scroller = document.querySelector(".event-list");
+  const fab = document.querySelector(".add-fab");
+  if (scroller && fab) {
+    let previous = scroller.scrollTop, travel = 0;
+    scroller.addEventListener("scroll", () => {
+      const current = Math.max(0, scroller.scrollTop), delta = current - previous;
+      previous = current;
+      if (current <= 0) { travel = 0; fab.classList.remove("is-hidden"); return; }
+      if (!delta) return;
+      if (Math.sign(delta) !== Math.sign(travel)) travel = 0;
+      travel += delta;
+      if (Math.abs(travel) >= 12) {
+        // Keep a keyboard-focused action available until focus leaves it.
+        fab.classList.toggle("is-hidden", travel > 0 && document.activeElement !== fab);
+        travel = 0;
+      }
+    }, { passive: true });
+  }
+  const cheerCanvas = document.querySelector(".cheer canvas");
+  if (cheerCanvas) launchCheer(cheerCanvas);
+  const name = document.getElementById("name");
+  if (name && !dialog) { name.focus(); name.setSelectionRange(name.value.length, name.value.length); }
+}
+
+document.getElementById("phone").addEventListener("input", (event) => {
+  if (event.target.id === "name") {
+    draft.name = event.target.value;
+    document.getElementById("save").disabled = !draft.name.trim();
+  }
+  if (event.target.id === "cycle-days") draft.extra = event.target.value.replace(/\D/g, "").slice(0, 6);
+});
+let holdTimer = null;
+let suppressClick = false;
+let dropEvent = null;
+const phone = document.getElementById("phone");
+function clearHold() { clearTimeout(holdTimer); holdTimer = null; }
+function armHold(x, y, fire) {
+  clearHold();
+  holdTimer = setTimeout(() => {
+    holdTimer = null;
+    suppressClick = true;
+    fire();
+    render();
+    setTimeout(() => { suppressClick = false; }, 50);
+  }, 450);
+  function cancel(move) {
+    if (move && Math.hypot(move.clientX - x, move.clientY - y) < 8) return;
+    clearHold();
+    phone.removeEventListener("pointermove", cancel);
+  }
+  phone.addEventListener("pointermove", cancel);
+  phone.addEventListener("pointerup", () => { clearHold(); phone.removeEventListener("pointermove", cancel); }, { once: true });
+}
+phone.addEventListener("pointerdown", (event) => {
+  const card = event.target.closest(".hero, .row-card");
+  if (card && screen === "list") {
+    const id = card.dataset.id;
+    armHold(event.clientX, event.clientY, () => { dropEvent = id; dialog = "delete-list"; });
+    return;
+  }
+  if (event.target.closest("button") || !draft) return;
+  const row = event.target.closest(".cycle");
+  if (!row) return;
+  const days = Number(row.dataset.id);
+  armHold(event.clientX, event.clientY, () => { draft.dropDays = days; dialog = "drop"; });
+});
+phone.addEventListener("click", (event) => {
+  if (suppressClick) { suppressClick = false; return; }
+  const button = event.target.closest("[data-act]");
+  if (!button) return;
+  const act = button.dataset.act;
+  if (act === "cheer") { cheerGen++; if (!demoCheer) dueToday().forEach(hit => cheered.add(hit.key)); demoCheer = false; }
+  if (act === "setup") screen = "setup";
+  if (act === "pick-lang") dialog = "lang";
+  if (act === "lang") { lang = button.dataset.id; dialog = null; }
+  if (act === "theme") theme = theme === "dark" ? "light" : "dark";
+  if (act === "back") { dialog = null; screen = screen === "edit" ? editReturn : screen === "events" ? "setup" : "list"; }
+  if (act === "events") screen = "events";
+  if (act === "more-upcoming") allUpcoming = !allUpcoming;
+  if (act === "more-together") allTogether = !allTogether;
+  if (act === "add") { editReturn = screen; draft = { id: null, name: "", start: iso(today), cycles: defaultCycles(), extra: "" }; screen = "edit"; }
+  if (act === "edit") {
+    editReturn = screen;
+    const eventRow = events.find(item => String(item.id) === button.dataset.id);
+    draft = { id: eventRow.id, name: eventRow.name, start: eventRow.start, cycles: (eventRow.cycles || defaultCycles()).map(cycle => ({ ...cycle })), extra: "" };
+    screen = "edit";
+  }
+  if (act === "cycle") {
+    const days = Number(button.dataset.id);
+    draft.cycles = draft.cycles.map(cycle => cycle.days === days ? { ...cycle, on: !cycle.on } : cycle);
+  }
+  if (act === "confirm-delete-list") {
+    events = events.filter(item => String(item.id) !== String(dropEvent));
+    dropEvent = null;
+    dialog = null;
+  }
+  if (act === "confirm-drop") {
+    draft.cycles = draft.cycles.filter(cycle => cycle.days !== draft.dropDays);
+    dialog = null;
+  }
+  if (act === "add-cycle") {
+    const days = Number(document.getElementById("cycle-days").value);
+    if (Number.isInteger(days) && days >= 1 && days <= 100000 && !draft.cycles.some(cycle => cycle.days === days)) {
+      draft.cycles = draft.cycles.concat({ days, on: true }).sort((a, b) => a.days - b.days);
+      draft.extra = "";
+    }
+  }
+  if (act === "save" && draft.name.trim()) {
+    const name = draft.name.trim();
+    const cycles = draft.cycles.map(cycle => ({ ...cycle }));
+    if (draft.id == null) events.push({ id: Date.now(), name, start: draft.start, cycles });
+    else Object.assign(events.find(item => item.id === draft.id), { name, start: draft.start, cycles });
+    screen = editReturn;
+  }
+  if (act === "ask-delete") dialog = "delete";
+  if (act === "close") dialog = null;
+  if (act === "confirm-delete") { events = events.filter(item => item.id !== draft.id); dialog = null; screen = editReturn; }
+  if (act === "pick-date") dialog = "date";
+  if (act === "use-date") { const value = document.getElementById("picked-date").value; if (value) draft.start = value; dialog = null; }
+  if (act === "pick-early") dialog = "early";
+  if (act === "early") { early = Number(button.dataset.id); dialog = null; }
+  if (act === "pick-time") dialog = "time";
+  if (act === "use-time") {
+    const value = document.getElementById("picked-time").value;
+    if (value) { const [h, m] = value.split(":").map(Number); hour = h; minute = m; }
+    dialog = null;
+  }
+  if (act === "flag") flags[button.dataset.id] = !flags[button.dataset.id];
+  const scrollTop = document.querySelector(".event-list")?.scrollTop;
+  render();
+  if (act.startsWith("more-") && scrollTop != null) document.querySelector(".event-list").scrollTop = scrollTop;
+});
+document.getElementById("demo-fireworks").addEventListener("click", () => { cheerGen++; demoCheer = true; screen = "list"; dialog = null; render(); });
+render();
+</script>
+</body>
+</html>
