@@ -150,7 +150,11 @@ object Alarms {
             Intent(context, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        alarm.setAlarmClock(AlarmManager.AlarmClockInfo(whenMs, show), pending)
+        scheduleWithExactFallback(
+            canScheduleExact = { alarm.canScheduleExactAlarms() },
+            scheduleExact = { alarm.setAlarmClock(AlarmManager.AlarmClockInfo(whenMs, show), pending) },
+            scheduleInexact = { alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, whenMs, pending) },
+        )
     }
 
     private fun cancel(context: Context) {

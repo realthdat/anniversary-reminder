@@ -154,8 +154,9 @@
 <link rel="stylesheet" href="redesign.css">
 </head>
 <body>
-<div class="preview-tools"><span>Anniversaries · Preview</span><button id="demo-fireworks" type="button">✦ Xem lời chúc</button></div><div class="stage"><div class="phone" id="phone"></div></div>
+<div class="preview-tools"><span>Anniversaries · Preview</span><button id="demo-fireworks" type="button">✦ Preview cheers</button></div><div class="stage"><div class="phone" id="phone"></div></div>
 <script src="fireworks.js"></script>
+<script src="milestone-card.js"></script>
 <script>
 const DAY_MARKS = [100, 200, 300, 500, 1000];
 const WEEK_MARKS = [100, 200, 500, 1000];
@@ -545,6 +546,7 @@ function render() {
       }
     }, { passive: true });
   }
+  paintMilestoneCard();
   const cheerCanvas = document.querySelector(".cheer canvas");
   if (cheerCanvas) launchCheer(cheerCanvas);
   const name = document.getElementById("name");
@@ -625,13 +627,19 @@ phone.addEventListener("click", (event) => {
   }
   if (act === "confirm-drop") {
     draft.cycles = draft.cycles.filter(cycle => cycle.days !== draft.dropDays);
+    if (draft.id != null) {
+      const row = events.find(item => item.id === draft.id);
+      if (row) row.cycles = draft.cycles.map(cycle => ({ ...cycle }));
+    }
     dialog = null;
   }
   if (act === "add-cycle") {
-    const days = Number(document.getElementById("cycle-days").value);
+    const input = document.getElementById("cycle-days");
+    const days = Number(input.value);
     if (Number.isInteger(days) && days >= 1 && days <= 100000 && !draft.cycles.some(cycle => cycle.days === days)) {
       draft.cycles = draft.cycles.concat({ days, on: true }).sort((a, b) => a.days - b.days);
       draft.extra = "";
+      input.blur();
     }
   }
   if (act === "save" && draft.name.trim()) {

@@ -95,6 +95,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -522,6 +524,8 @@ private fun ListScreen(resumeTick: Int, onAdd: () -> Unit, onEdit: (Event) -> Un
 @Composable
 private fun EditScreen(existing: Event?, onDone: () -> Unit) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
     var name by remember { mutableStateOf(existing?.name ?: "") }
     var date by remember { mutableStateOf(existing?.start ?: LocalDate.now()) }
     var cycles by remember { mutableStateOf(existing?.cycles ?: defaultCycles()) }
@@ -599,6 +603,8 @@ private fun EditScreen(existing: Event?, onDone: () -> Unit) {
                             if (days < 1 || days > 100_000 || cycles.any { it.days == days }) return@Button
                             cycles = (cycles + DayCycle(days, true)).sortedBy { it.days }
                             extra = ""
+                            focusManager.clearFocus()
+                            keyboard?.hide()
                         },
                         enabled = extra.toIntOrNull()?.let { days -> days in 1..100_000 && cycles.none { it.days == days } } == true,
                         modifier = Modifier.padding(start = 8.dp).height(48.dp),
@@ -639,8 +645,14 @@ private fun EditScreen(existing: Event?, onDone: () -> Unit) {
             text = { Text(context.markPhrase(Mark(removing, MarkUnit.DAY))) },
             confirmButton = {
                 TextButton(onClick = {
-                    cycles = cycles.filterNot { it.days == removing }
+                    val next = cycles.filterNot { it.days == removing }
+                    cycles = next
                     dropDays = null
+                    if (existing != null) {
+                        val trimmed = name.trim().ifEmpty { existing.name }
+                        Store.upsert(context, Event(existing.id, trimmed, date, next))
+                        Alarms.reschedule(context)
+                    }
                 }) { Text(stringResource(R.string.delete), color = C.delete) }
             },
             dismissButton = { TextButton(onClick = { dropDays = null }) { Text(stringResource(R.string.cancel)) } },
@@ -912,16 +924,14 @@ private fun PrimaryButton(text: String, enabled: Boolean = true, onClick: () -> 
 private fun CheerOverlay(hits: List<Pair<Event, Hit>>, onDone: () -> Unit) {
     val context = LocalContext.current
     val embers = remember { celebrationEmbers() }
-    val start = remember { longArrayOf(0L) }
-    var now by remember { mutableStateOf(0L) }
+    val timeline = remember { CelebrationTimeline() }
     LaunchedEffect(Unit) {
-        val began = withFrameNanos { it }
-        start[0] = began
-        var time = began
-        while (time < began + 5_500_000_000L) time = withFrameNanos { now = it; it }
+        do {
+            withFrameNanos { timeline.onFrame(it) }
+        } while (timeline.elapsed < 5.5f)
         onDone()
     }
-    val elapsed = if (start[0] == 0L || now == 0L) 0f else (now - start[0]) / 1_000_000_000f
+    val elapsed = timeline.elapsed
     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0xFF29434F), Color(0xFF101E29)))).clickable(onClick = onDone)) {
         Canvas(Modifier.fillMaxSize()) {
             drawCelebration(elapsed, embers)
@@ -950,6 +960,8 @@ private fun HeroCard(event: Event, hit: Hit, today: LocalDate, lead: LocalDate?,
         modifier = Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onHold),
         shape = RoundedCornerShape(26.dp), color = Color(0xFF233F49),
     ) {
+        Box {
+        Canvas(Modifier.matchParentSize()) { drawMilestoneCardArt() }
         Column(Modifier.padding(24.dp)) {
             Text(stringResource(R.string.nearest_milestone), color = Color(0xFFE7CF9E), fontSize = 10.sp, letterSpacing = 1.6.sp)
             Text(event.name, color = Color(0xFFFFF8E9), fontSize = 24.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 16.dp))
@@ -961,6 +973,7 @@ private fun HeroCard(event: Event, hit: Hit, today: LocalDate, lead: LocalDate?,
             Box(Modifier.fillMaxWidth().height(1.dp).background(Color(0x33FFFFFF)))
             Text(formatDate(hit.date), color = Color(0xFFD8E2DF), fontSize = 12.sp, modifier = Modifier.padding(top = 16.dp))
             if (lead != null) Text(stringResource(R.string.early_when, formatDate(lead)), color = Color(0xFFE7CF9E), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+        }
         }
     }
 }
