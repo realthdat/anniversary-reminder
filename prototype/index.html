@@ -490,7 +490,7 @@ function setupScreen() {
     `<div class="hair"></div><button class="setrow" data-act="pick-time" type="button"><div><b>${esc(t().time_label)}</b></div><span class="value">${clock()}</span></button>` +
     `<div class="hair"></div><button class="setrow" data-act="pick-early" type="button"><div><b>${esc(t().early)}</b></div><span class="value">${esc(earlyName())}</span></button>` +
     `</div></div>` +
-    `<div class="group"><h3>${esc(t().app_info)}</h3><div class="card"><div class="about"><img class="mark" src="mark.png" alt=""><b>${esc(t().app_name)}</b><div class="ver">${esc(t().version)}</div><p>${esc(t().app_about)}</p><div class="hair"></div><p class="copy">${esc(t().copyright)}</p></div></div></div>`;
+    `<div class="group"><h3>${esc(t().app_info)}</h3><div class="card"><div class="about"><img class="mark" src="${theme === "dark" ? "mark-dark.png" : "mark-light.png"}" alt=""><b>${esc(t().app_name)}</b><div class="ver">${esc(t().version)}</div><p>${esc(t().app_about)}</p><div class="hair"></div><p class="copy">${esc(t().copyright)}</p></div></div></div>`;
 }
 function overlay() {
   if (dialog === "delete-list") {

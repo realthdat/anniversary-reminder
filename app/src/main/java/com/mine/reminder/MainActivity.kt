@@ -2,7 +2,9 @@ package com.mine.reminder
 
 import android.Manifest
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -175,6 +177,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        syncLauncherIcon()
         ticks++
         if (!askedNotify && Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             askedNotify = true
@@ -182,6 +185,30 @@ class MainActivity : ComponentActivity() {
             return
         }
         Alarms.reschedule(this)
+    }
+
+    private fun syncLauncherIcon() {
+        val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        val pm = packageManager
+        val light = ComponentName(this, "com.mine.reminder.LauncherLight")
+        val dark = ComponentName(this, "com.mine.reminder.LauncherDark")
+        if (night == dark.on(pm, false) && !night == light.on(pm, true)) return
+        val flags = PackageManager.DONT_KILL_APP
+        val on = PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        val off = PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        if (night) {
+            pm.setComponentEnabledSetting(dark, on, flags)
+            pm.setComponentEnabledSetting(light, off, flags)
+        } else {
+            pm.setComponentEnabledSetting(light, on, flags)
+            pm.setComponentEnabledSetting(dark, off, flags)
+        }
+    }
+
+    private fun ComponentName.on(pm: PackageManager, defaultOn: Boolean) = when (pm.getComponentEnabledSetting(this)) {
+        PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
+        PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> false
+        else -> defaultOn
     }
 }
 
@@ -375,6 +402,7 @@ private fun App(resumeTick: Int) {
                     )
                     Screen.Setup -> SetupScreen(
                         resumeTick,
+                        dark = dark,
                         onEvents = { screen = Screen.Events },
                         language = context.chosenLanguage(),
                         onLanguage = { code ->
@@ -680,6 +708,7 @@ private fun EditScreen(existing: Event?, onDone: () -> Unit) {
 @Composable
 private fun SetupScreen(
     resumeTick: Int,
+    dark: Boolean,
     onEvents: () -> Unit,
     language: String,
     onLanguage: (String) -> Unit,
@@ -760,9 +789,9 @@ private fun SetupScreen(
             SettingsGroup(stringResource(R.string.app_info)) {
                 Column(Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painterResource(R.drawable.ic_launcher_mark),
+                        painterResource(if (dark) R.drawable.ic_logo_navy else R.drawable.ic_logo_light),
                         contentDescription = null,
-                        modifier = Modifier.size(64.dp).clip(RoundedCornerShape(16.dp)).background(Color(0xFFF8FAFC)),
+                        modifier = Modifier.size(64.dp).clip(RoundedCornerShape(16.dp)),
                     )
                     Text(stringResource(R.string.app_name), color = C.ink, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 12.dp))
                     Text(stringResource(R.string.version_label, version), color = C.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
