@@ -795,6 +795,7 @@ private fun SetupScreen(
                     )
                     Text(stringResource(R.string.app_name), color = C.ink, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 12.dp))
                     Text(stringResource(R.string.version_label, version), color = C.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+                    Text(stringResource(R.string.latest_update), color = C.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
                     Text(stringResource(R.string.app_about), color = C.muted, fontSize = 14.sp, textAlign = TextAlign.Center, lineHeight = 20.sp, modifier = Modifier.padding(top = 12.dp, start = 8.dp, end = 8.dp))
                     Box(Modifier.fillMaxWidth().padding(top = 16.dp).height(1.dp).background(C.line))
                     Text(stringResource(R.string.copyright), color = C.muted, fontSize = 12.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 12.dp))
