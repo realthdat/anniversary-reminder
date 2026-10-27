@@ -19,7 +19,19 @@ fun Context.markPhrase(mark: Mark): String = "${mark.digits()} ${markWord(mark)}
 
 fun Context.hitPhrase(hit: Hit): String = hit.labels.joinToString(" · ") { markPhrase(it) }
 
-fun Context.earlyPhrase(days: Int, hit: Hit): String {
-    val whenText = if (days == 1) getString(R.string.tomorrow) else getString(R.string.in_days, days)
-    return "$whenText · ${hitPhrase(hit)}"
+fun anniversaryPhrase(hit: Hit): String = hit.labels.joinToString(" and ") { mark ->
+    val unit = when (mark.unit) {
+        MarkUnit.YEAR -> if (mark.count == 1) "year" else "years"
+        MarkUnit.MONTH -> if (mark.count == 1) "month" else "months"
+        MarkUnit.WEEK -> if (mark.count == 1) "week" else "weeks"
+        MarkUnit.DAY -> if (mark.count == 1) "day" else "days"
+    }
+    "${mark.count} $unit"
+}
+
+fun congratsLine(hit: Hit): String = "Congratulations on your ${anniversaryPhrase(hit)} anniversary"
+
+fun earlyNotice(days: Int, hit: Hit): String {
+    val mark = anniversaryPhrase(hit)
+    return if (days == 1) "Your $mark anniversary is tomorrow" else "Your $mark anniversary is in $days days"
 }

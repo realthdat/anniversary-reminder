@@ -75,11 +75,10 @@
     <string name="home_title">모든 순간을 간직하세요.</string>
     <string name="home_subtitle">평범한 하루, 특별한 기억.</string>
     <string name="upcoming_heading">다가오는 날</string>
-    <string name="together_heading">함께한 시간</string>
+    <string name="together_heading">얼마나 지났나요</string>
     <string name="nearest_milestone">가장 가까운 기념일</string>
     <string name="celebrating_mark">%s</string>
     <string name="days_to_go">일 남음</string>
-    <string name="days_together">일 함께</string>
     <string name="since_date">%s부터</string>
     <string name="tap_continue">탭하여 계속</string>
     <string name="events_section">일정</string>

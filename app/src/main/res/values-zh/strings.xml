@@ -75,11 +75,10 @@
     <string name="home_title">记住每一个瞬间。</string>
     <string name="home_subtitle">平常的一天，特别的回忆。</string>
     <string name="upcoming_heading">即将到来</string>
-    <string name="together_heading">在一起的时光</string>
+    <string name="together_heading">已经多久</string>
     <string name="nearest_milestone">最近的纪念日</string>
     <string name="celebrating_mark">迎来 %s</string>
     <string name="days_to_go">天后</string>
-    <string name="days_together">天已过</string>
     <string name="since_date">从 %s</string>
     <string name="tap_continue">轻触继续</string>
     <string name="events_section">事件</string>

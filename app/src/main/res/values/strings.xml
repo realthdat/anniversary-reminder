@@ -79,11 +79,10 @@
     <string name="home_title">Every moment matters.</string>
     <string name="home_subtitle">An ordinary day. An extraordinary memory.</string>
     <string name="upcoming_heading">Coming up</string>
-    <string name="together_heading">Time together</string>
+    <string name="together_heading">How long has it been</string>
     <string name="nearest_milestone">YOUR NEXT MILESTONE</string>
     <string name="celebrating_mark">Celebrating %s</string>
     <string name="days_to_go">days to go</string>
-    <string name="days_together">days together</string>
     <string name="since_date">Since %s</string>
     <string name="tap_continue">Tap to continue</string>
     <string name="events_section">Events</string>

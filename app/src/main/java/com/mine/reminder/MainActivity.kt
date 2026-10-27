@@ -98,6 +98,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -246,16 +247,6 @@ object Store {
         prefs(context).edit().putString("theme", mode).commit()
     }
 
-    fun wasCheered(context: Context, id: Long, date: LocalDate): Boolean =
-        prefs(context).getStringSet("cheered", emptySet())!!.contains("$id|$date")
-
-    fun markCheered(context: Context, id: Long, date: LocalDate) {
-        val prefs = prefs(context)
-        val next = prefs.getStringSet("cheered", emptySet())!!.toMutableSet()
-        next += "$id|$date"
-        prefs.edit().putStringSet("cheered", next).commit()
-    }
-
     fun wasNotified(context: Context, id: Long, date: LocalDate, early: Boolean = false): Boolean =
         prefs(context).getStringSet("notified", emptySet())!!.contains(notifiedKey(id, date, early))
 
@@ -352,6 +343,7 @@ private fun App(resumeTick: Int) {
         inverseOnSurface = if (dark) LightTone.ink else DarkTone.ink,
     )) {
         var openSetup by rememberSaveable { mutableStateOf(false) }
+        var celebrated by remember { mutableStateOf(false) }
         var screen by remember { mutableStateOf<Screen>(if (openSetup) Screen.Setup else Screen.List) }
         var editReturn by remember { mutableStateOf<Screen>(Screen.List) }
         BackHandler(enabled = screen !is Screen.List) {
@@ -363,6 +355,8 @@ private fun App(resumeTick: Int) {
                 when (val current = screen) {
                     Screen.List -> ListScreen(
                         resumeTick,
+                        celebrated = celebrated,
+                        onCelebrated = { celebrated = true },
                         onAdd = { editReturn = Screen.List; screen = Screen.Edit(null) },
                         onEdit = { editReturn = Screen.List; screen = Screen.Edit(it) },
                         onSetup = { openSetup = true; screen = Screen.Setup },
@@ -398,7 +392,7 @@ private fun App(resumeTick: Int) {
 }
 
 @Composable
-private fun ListScreen(resumeTick: Int, onAdd: () -> Unit, onEdit: (Event) -> Unit, onSetup: () -> Unit, dark: Boolean, onToggleTheme: () -> Unit) {
+private fun ListScreen(resumeTick: Int, celebrated: Boolean, onCelebrated: () -> Unit, onAdd: () -> Unit, onEdit: (Event) -> Unit, onSetup: () -> Unit, dark: Boolean, onToggleTheme: () -> Unit) {
     val context = LocalContext.current
     val today = remember(resumeTick) { LocalDate.now() }
     val (hour, minute) = remember(resumeTick) { Store.time(context) }
@@ -414,7 +408,7 @@ private fun ListScreen(resumeTick: Int, onAdd: () -> Unit, onEdit: (Event) -> Un
     val cheers = remember(resumeTick) {
         events.mapNotNull { event ->
             val labels = labelsOn(event.start, today, event.cycles)
-            if (labels.isEmpty() || Store.wasCheered(context, event.id, today)) null else event to Hit(today, labels)
+            if (labels.isEmpty()) null else event to Hit(today, labels)
         }
     }
     var showAllUpcoming by rememberSaveable { mutableStateOf(false) }
@@ -441,8 +435,15 @@ private fun ListScreen(resumeTick: Int, onAdd: () -> Unit, onEdit: (Event) -> Un
             }
         }
     }
-    var showCheer by remember(resumeTick) { mutableStateOf(cheers.isNotEmpty()) }
-    LaunchedEffect(resumeTick) { cheers.forEach { (event, _) -> Store.markCheered(context, event.id, today) } }
+    var showCheer by remember { mutableStateOf(false) }
+    var cheerHits by remember { mutableStateOf<List<Pair<Event, Hit>>>(emptyList()) }
+    LaunchedEffect(resumeTick) {
+        if (!celebrated && cheers.isNotEmpty()) {
+            cheerHits = cheers
+            onCelebrated()
+            showCheer = true
+        }
+    }
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         TopBar(stringResource(R.string.app_name)) {
@@ -499,7 +500,7 @@ private fun ListScreen(resumeTick: Int, onAdd: () -> Unit, onEdit: (Event) -> Un
             modifier = Modifier.size(60.dp).semantics { contentDescription = addLabel },
         ) { Text("+", fontSize = 32.sp, fontWeight = FontWeight.Light) }
     }
-    if (showCheer) CheerOverlay(cheers) { showCheer = false }
+    if (showCheer) CheerOverlay(cheerHits) { showCheer = false }
     val removing = dropId?.let { id -> events.find { it.id == id } }
     if (removing != null) {
         AlertDialog(
@@ -1009,7 +1010,7 @@ private fun SinceRow(event: Event, days: Long, onClick: () -> Unit, onHold: () -
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(String.format(LocalConfiguration.current.locales[0], "%,d", days), color = C.action, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Text(stringResource(R.string.days_together), color = C.muted, fontSize = 10.sp)
+                Text(pluralStringResource(R.plurals.unit_day, days.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()), color = C.muted, fontSize = 10.sp)
             }
         }
     }

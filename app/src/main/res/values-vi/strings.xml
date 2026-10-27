@@ -75,11 +75,10 @@
     <string name="home_title">Giữ từng khoảnh khắc.</string>
     <string name="home_subtitle">Một ngày bình thường. Một kỷ niệm đặc biệt.</string>
     <string name="upcoming_heading">Sắp tới</string>
-    <string name="together_heading">Đã cùng nhau</string>
+    <string name="together_heading">Đã bao lâu</string>
     <string name="nearest_milestone">KỶ NIỆM GẦN NHẤT</string>
     <string name="celebrating_mark">Chạm mốc %s</string>
     <string name="days_to_go">ngày nữa</string>
-    <string name="days_together">ngày đã qua</string>
     <string name="since_date">Từ %s</string>
     <string name="tap_continue">Chạm để tiếp tục</string>
     <string name="events_section">Sự kiện</string>

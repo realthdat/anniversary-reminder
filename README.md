@@ -29,12 +29,12 @@ Screenshots are from the HTML, CSS, and Canvas prototype in `prototype/`, using 
 ## Features
 
 - The next milestone card shows the days remaining and the mark coming up.
-- **Coming up** and **Time together** start with a short list, then **Show more** / **Show less**.
+- **Coming up** and **How long has it been** start with a short list, then **Show more** / **Show less**.
 - The title bar stays pinned while scrolling. The round add button sits on the bottom edge, hides while scrolling down, and returns when scrolling up.
 - **Settings → Manage events**: add, view, edit, and delete an event. Editing and deleting ask for confirmation.
 - Yearly anniversaries. Default day marks are 100, 200, 300, 500, and 1,000 days, and each event can change them. Week and month marks are included in the milestone math.
-- Choose the notification time, and an early reminder 1, 3, or 7 days before.
-- A **Cheers!** screen with two clinking glasses and fireworks drawn on Canvas.
+- Choose the notification time, and an early reminder 1, 3, or 7 days before. The notification title is the event name. The line under it is English, such as “Congratulations on your 100 days anniversary.”
+- A **Cheers!** screen with two clinking glasses and fireworks drawn on Canvas. It plays again each time the app is opened on a day that hits a mark.
 - Colors, fields, and the date and time pickers follow the light or dark theme.
 
 ## Languages
@@ -79,7 +79,7 @@ Open `prototype/index.html` in a browser, or serve it if Python 3 is installed:
 python -m http.server 4173 --bind 127.0.0.1 --directory prototype
 ```
 
-Then open [http://127.0.0.1:4173](http://127.0.0.1:4173). Use **Xem lời chúc** to play the animation, and the moon or sun icon to switch theme.
+Then open [http://127.0.0.1:4173](http://127.0.0.1:4173). Use **Preview cheers** to play the animation, and the moon or sun icon to switch theme.
 
 The prototype only imitates the interface. Events and settings stay in memory, and a reload restores the sample data. The permission switches do not grant Android permissions and do not post real notifications.
 
@@ -101,12 +101,18 @@ The prototype only imitates the interface. Events and settings stay in memory, a
 
 ```powershell
 .\gradlew.bat :app:assembleDebug
+.\gradlew.bat :app:assembleRelease
 .\gradlew.bat :app:testDebugUnitTest :app:lintDebug
 ```
 
-- Debug APK: `app/build/outputs/apk/debug/app-debug.apk`.
+APK files are named `Anniversaries-<versionName>-<versionCode>-<buildType>.apk`.
+
+- Debug APK: `app/build/outputs/apk/debug/`.
+- Release APK: `app/build/outputs/apk/release/`. A signed release needs `keystore.properties` and `release.keystore` in the project root. Both stay off Git.
 - Lint report: `app/build/reports/lint-results-debug.html`.
 - Test report: `app/build/reports/tests/testDebugUnitTest/index.html`.
+
+Raise `versionCode` in `app/build.gradle.kts` before each release. Installing that newer signed APK over the copy already on the phone keeps the saved dates. Uninstalling does not.
 
 With an Android 12+ device connected and USB debugging on:
 
@@ -114,7 +120,7 @@ With an Android 12+ device connected and USB debugging on:
 .\gradlew.bat :app:installDebug
 ```
 
-This repo includes `gradlew.bat` for Windows. On macOS or Linux, open the project in Android Studio or use a local Gradle 8.13. The debug APK is for trying the app. A release signing setup is separate, before any wider distribution.
+This repo includes `gradlew.bat` for Windows. On macOS or Linux, open the project in Android Studio or use a local Gradle 8.13. The debug APK is for trying the app.
 
 ## Data and permissions
 

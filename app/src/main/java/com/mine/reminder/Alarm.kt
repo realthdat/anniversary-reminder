@@ -73,7 +73,7 @@ object Alarms {
             if (!Store.wasNotified(context, event.id, date)) {
                 val labels = labelsOn(event.start, date, event.cycles)
                 if (labels.isNotEmpty()) {
-                    post(local, event.id.toString(), event.name, local.hitPhrase(Hit(date, labels)), event.id.hashCode())
+                    post(local, event.id.toString(), event.name, congratsLine(Hit(date, labels)), event.id.hashCode())
                     Store.markNotified(context, event.id, date)
                 }
             }
@@ -83,7 +83,7 @@ object Alarms {
                     val labels = labelsOn(event.start, milestone, event.cycles)
                     if (labels.isNotEmpty()) {
                         val hit = Hit(milestone, labels)
-                        post(local, "e${event.id}", event.name, local.earlyPhrase(early, hit), event.id.hashCode())
+                        post(local, "e${event.id}", event.name, earlyNotice(early, hit), event.id.hashCode())
                         Store.markNotified(context, event.id, milestone, early = true)
                     }
                 }

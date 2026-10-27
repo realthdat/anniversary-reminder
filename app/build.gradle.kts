@@ -17,8 +17,8 @@ android {
         applicationId = "com.mine.reminder"
         minSdk = 31
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
     if (keystorePropertiesFile.exists()) {
         signingConfigs {
@@ -42,6 +42,14 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    // Anniversaries-<versionName>-<versionCode>-<buildType>.apk
+    applicationVariants.configureEach {
+        val variant = this
+        outputs.configureEach {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                "Anniversaries-${variant.versionName}-${variant.versionCode}-${variant.name}.apk"
+        }
     }
 }
 

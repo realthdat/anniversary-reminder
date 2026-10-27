@@ -30,6 +30,14 @@ class MilestonesTest {
     }
 
     @Test
+    fun congratsLineNamesTheMark() {
+        val today = LocalDate.of(2026, 10, 27)
+        assertEquals("Congratulations on your 1 day anniversary", congratsLine(Hit(today, listOf(Mark(1, MarkUnit.DAY)))))
+        assertEquals("Congratulations on your 100 days anniversary", congratsLine(Hit(today, listOf(Mark(100, MarkUnit.DAY)))))
+        assertEquals("Your 100 days anniversary is tomorrow", earlyNotice(1, Hit(today, listOf(Mark(100, MarkUnit.DAY)))))
+    }
+
+    @Test
     fun roundMarksKeepTheirOwnLabels() {
         val start = LocalDate.of(2020, 1, 1)
         assertEquals(listOf(Mark(100, MarkUnit.DAY)), labelsOn(start, start.plusDays(100)))

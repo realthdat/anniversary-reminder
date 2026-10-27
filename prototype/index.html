@@ -189,7 +189,7 @@ const COPY = {
     home_eyebrow: "FOR THE DAYS THAT MATTER", home_title: "Every moment matters.", home_subtitle: "An ordinary day. An extraordinary memory.",
     nearest_milestone: "YOUR NEXT MILESTONE", celebrating_mark: "Celebrating %s", days_to_go: "days to go",
     upcoming_heading: "Coming up", upcoming_count: "%d memories", show_more: "Show more", show_less: "Show less",
-    together_heading: "Time together", together_note: "Every day counts", since_date: "Since %s", days_together: "days together",
+    together_heading: "How long has it been", since_date: "Since %s",
     events_section: "Events", manage_events: "Manage events", tap_continue: "Tap to continue", sample_event: "The day we met",
     units: { year: ["year", "years"], month: ["month", "months"], week: ["week", "weeks"], day: ["day", "days"] }
   },
@@ -220,7 +220,7 @@ const COPY = {
     home_eyebrow: "GỬI NHỮNG NGÀY ĐÁNG NHỚ", home_title: "Giữ từng khoảnh khắc.", home_subtitle: "Một ngày bình thường. Một kỷ niệm đặc biệt.",
     nearest_milestone: "KỶ NIỆM GẦN NHẤT", celebrating_mark: "Chạm mốc %s", days_to_go: "ngày nữa",
     upcoming_heading: "Sắp tới", upcoming_count: "%d kỷ niệm", show_more: "Xem thêm", show_less: "Thu gọn",
-    together_heading: "Đã cùng nhau", together_note: "Từng ngày đều đáng nhớ", since_date: "Từ %s", days_together: "ngày đã qua",
+    together_heading: "Đã bao lâu", since_date: "Từ %s",
     events_section: "Sự kiện", manage_events: "Quản lý sự kiện", tap_continue: "Chạm để tiếp tục", sample_event: "Ngày mình gặp nhau",
     units: { year: ["năm", "năm"], month: ["tháng", "tháng"], week: ["tuần", "tuần"], day: ["ngày", "ngày"] }
   },
@@ -251,7 +251,7 @@ const COPY = {
     home_eyebrow: "献给重要的日子", home_title: "记住每一个瞬间。", home_subtitle: "平常的一天，特别的回忆。",
     nearest_milestone: "最近的纪念日", celebrating_mark: "迎来 %s", days_to_go: "天后",
     upcoming_heading: "即将到来", upcoming_count: "%d个纪念日", show_more: "查看更多", show_less: "收起",
-    together_heading: "在一起的时光", together_note: "每一天都值得记住", since_date: "从 %s", days_together: "天已过",
+    together_heading: "已经多久", since_date: "从 %s",
     events_section: "事件", manage_events: "管理事件", tap_continue: "轻触继续", sample_event: "我们相遇的那天",
     units: { year: ["年", "年"], month: ["个月", "个月"], week: ["周", "周"], day: ["天", "天"] }
   },
@@ -282,7 +282,7 @@ const COPY = {
     home_eyebrow: "소중한 날을 위해", home_title: "모든 순간을 간직하세요.", home_subtitle: "평범한 하루, 특별한 기억.",
     nearest_milestone: "가장 가까운 기념일", celebrating_mark: "%s", days_to_go: "일 남음",
     upcoming_heading: "다가오는 날", upcoming_count: "기념일 %d개", show_more: "더 보기", show_less: "접기",
-    together_heading: "함께한 시간", together_note: "하루하루가 소중합니다", since_date: "%s부터", days_together: "일 함께",
+    together_heading: "얼마나 지났나요", since_date: "%s부터",
     events_section: "일정", manage_events: "일정 관리", tap_continue: "탭하여 계속", sample_event: "우리가 만난 날",
     units: { year: ["년", "년"], month: ["개월", "개월"], week: ["주", "주"], day: ["일", "일"] }
   }
@@ -432,8 +432,8 @@ function listScreen() {
     if (rows.length > 4) body += '<button class="more" data-act="more-upcoming">' + esc(allUpcoming ? t().show_less : t().show_more) + '</button>';
     const since = events.map(event => ({ event, days: daysBetween(parse(event.start),today) })).filter(row => row.days >= 0);
     if (since.length) {
-      body += heading(esc(t().together_heading), esc(t().together_note));
-      for (const row of (allTogether ? since : since.slice(0, 3))) body += '<button class="row-card" data-act="edit" data-id="' + row.event.id + '"><div class="row-info"><div class="row-name">' + esc(row.event.name) + '</div><div class="row-date">' + esc(t().since_date.replace("%s", formatDate(parse(row.event.start)))) + '</div></div><div class="row-count">' + esc(digits(row.days)) + '<small>' + esc(t().days_together) + '</small></div></button>';
+      body += '<div class="section-heading"><h3>' + esc(t().together_heading) + '</h3></div>';
+      for (const row of (allTogether ? since : since.slice(0, 3))) body += '<button class="row-card" data-act="edit" data-id="' + row.event.id + '"><div class="row-info"><div class="row-name">' + esc(row.event.name) + '</div><div class="row-date">' + esc(t().since_date.replace("%s", formatDate(parse(row.event.start)))) + '</div></div><div class="row-count">' + esc(digits(row.days)) + '<small>' + esc(word({ count: row.days, unit: "day" })) + '</small></div></button>';
     }
   }
   if (events.filter(event => daysBetween(parse(event.start), today) >= 0).length > 3) body += '<button class="more" data-act="more-together">' + esc(allTogether ? t().show_less : t().show_more) + '</button>';
